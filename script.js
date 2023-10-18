@@ -1,23 +1,41 @@
+
+function processInputText(inputText) {
+  d3.select("#chart svg").remove();
+  spinnerFunction(stringToArrayConverter(inputText));
+}
 const playersTextarea = document.getElementById("playersTextarea");
+const spinButton = document.getElementById("spin_button");
+
 
 playersTextarea.addEventListener("input", () => {
   const inputText = playersTextarea.value;
-  helloFunction(stringToArrayConverter(inputText));
+  // Call the processing function with the input text
+  processInputText(inputText);
 });
 
-// helloFunction(stringToArrayConverter(playersTextarea.innerHTML));
+document.addEventListener("DOMContentLoaded", () => {
+  const defaultInputText = playersTextarea.value; // Get the default value of playersTextarea
+  processInputText(defaultInputText); // Call the processing function with the default value
+});
+
+playersTextarea.addEventListener("input", () => {
+  const inputText = playersTextarea.value;
+  d3.select("#chart svg").remove();
+  spinnerFunction(stringToArrayConverter(inputText));
+});
+
 const stringToArrayConverter = (text) => {
   const playerArray = text.split(/\s+/).filter((word) => word.trim() !== "");
   return playerArray.map((player, index) => {
     return {
       label: player,
       value: index + 1,
-      question: player,
+      playerName: player,
     };
   });
 };
 
-const helloFunction = (data) => {
+const spinnerFunction = (data) => {
   var padding = { top: 20, right: 40, bottom: 0, left: 0 },
     w = 500 - padding.left - padding.right,
     h = 500 - padding.top - padding.bottom,
@@ -72,6 +90,7 @@ const helloFunction = (data) => {
       return data[i].label;
     });
   container.on("click", spin);
+
   function spin(d) {
     container.on("click", null);
     //all slices have been seen, all done
@@ -101,16 +120,11 @@ const helloFunction = (data) => {
       .duration(3000)
       .attrTween("transform", rotTween)
       .each("end", function () {
-        //mark question as seen
         d3.select(".slice:nth-child(" + (picked + 1) + ") path").attr("fill", "#111");
-        //populate question
-        d3.select("#question h1").text(data[picked].question);
-        oldrotation = rotation;
-
-        /* Get the result value from object "data" */
-        console.log(data[picked].value);
-
-        /* Comment the below line for restrict spin to sngle time */
+        d3.select(".slice:nth-child(" + (picked + 1) + ") text")
+          .attr("fill", "white");
+        d3.select("#winner h3").text(`\"${data[picked].playerName}\"  is winner!`);
+        oldrotation = rotation
         container.on("click", spin);
       });
   }
@@ -129,8 +143,8 @@ const helloFunction = (data) => {
     .attr("x", 0)
     .attr("y", 15)
     .attr("text-anchor", "middle")
-    .text("SPIN")
-    .style({ "font-weight": "bold", "font-size": "30px" });
+    .text("SPIN IT !")
+    .style({ "font-weight": "bold", "font-size": "20px", "cursor": "pointer" });
 
   function rotTween(to) {
     var i = d3.interpolate(oldrotation % 360, rotation);
@@ -139,18 +153,4 @@ const helloFunction = (data) => {
     };
   }
 
-  //   function getRandomNumbers() {
-  //     var array = new Uint16Array(1000);
-  //     var scale = d3.scale.linear().range([360, 1440]).domain([0, 100000]);
-  //     if (window.hasOwnProperty("crypto") && typeof window.crypto.getRandomValues === "function") {
-  //       window.crypto.getRandomValues(array);
-  //       console.log("works");
-  //     } else {
-  //       //no support for crypto, get crappy random numbers
-  //       for (var i = 0; i < 1000; i++) {
-  //         array[i] = Math.floor(Math.random() * 100000) + 1;
-  //       }
-  //     }
-  //     return array;
-  //   }
 };
